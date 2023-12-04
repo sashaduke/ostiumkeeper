@@ -10,7 +10,7 @@ import (
 // Data structure to store the data.
 type Data struct {
 	Timestamp time.Time `json:"timestamp"`
-	Value     float64   `json:"value"`
+	Value     string    `json:"value"`
 }
 
 // storeDataRedis caches data in Redis.

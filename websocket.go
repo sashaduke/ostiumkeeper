@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -9,19 +10,20 @@ import (
 )
 
 const (
-	PriceFeedAPIToken = "15fdaffbca93fb6c1084fb284f974be97ef23dcf"
+	priceFeedAPIToken = "15fdaffbca93fb6c1084fb284f974be97ef23dcf"
 	timestampLayout   = "2006-01-02T15:04:05.000000-07:00"
+	websocketURL      = "wss://api.tiingo.com/fx"
 )
 
-func connectWebSocket(url string) *websocket.Conn {
-	c, _, err := websocket.DefaultDialer.Dial(url, nil)
+func connectWebSocket() *websocket.Conn {
+	c, _, err := websocket.DefaultDialer.Dial(websocketURL, nil)
 	if err != nil {
 		log.Fatalf("dial error: %v\n", err)
 	}
 
 	subscribeRequest, err := json.Marshal(map[string]any{
 		"eventName":     "subscribe",
-		"authorization": PriceFeedAPIToken,
+		"authorization": priceFeedAPIToken,
 		"eventData": map[string]any{
 			"thresholdLevel": 5,
 			"tickers":        []string{"gbpusd"},
@@ -82,11 +84,12 @@ func pollWebSocket(c *websocket.Conn) {
 			continue
 		}
 
-		price, ok := data[5].(float64)
-		if !ok || price == 0 {
-			log.Printf("invalid price: %f\n", price)
+		priceFloat, ok := data[5].(float64)
+		if !ok || priceFloat == 0 {
+			log.Printf("invalid price: %f\n", priceFloat)
 			continue
 		}
+		price := fmt.Sprintf("%f", priceFloat)
 
 		simplifiedData := Data{
 			Timestamp: timestamp,
@@ -95,7 +98,7 @@ func pollWebSocket(c *websocket.Conn) {
 
 		storeDataRedis(simplifiedData)
 		latestUpdate = simplifiedData
-		log.Printf("\nSuccessfully cached new update from WebSocket:\nGBP/USD @ %f\n\n", price)
+		log.Printf("\nSuccessfully fetched & cached new update from feed:\nGBP/USD @ %s\n\n", price)
 	}
 }
 
