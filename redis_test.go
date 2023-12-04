@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"testing"
+
+	"github.com/go-redis/redis/v8"
 )
 
 func init() {
@@ -12,7 +13,7 @@ func init() {
 	})
 }
 
-func TestRedis(t *testing.T) {
+func TestRedisGetCachedValue(t *testing.T) {
 	data, err := retrieveDataRedis()
 	fmt.Println(data, err)
 }

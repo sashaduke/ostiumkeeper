@@ -10,9 +10,9 @@ import (
 )
 
 const (
+	websocketURL      = "wss://api.tiingo.com/fx"
 	priceFeedAPIToken = "15fdaffbca93fb6c1084fb284f974be97ef23dcf"
 	timestampLayout   = "2006-01-02T15:04:05.000000-07:00"
-	websocketURL      = "wss://api.tiingo.com/fx"
 )
 
 func connectWebSocket() *websocket.Conn {
@@ -68,28 +68,32 @@ func pollWebSocket(c *websocket.Conn) {
 
 		var data []any
 		if err := json.Unmarshal(wsResponse.Data, &data); err != nil || len(data) < 6 {
-			log.Printf("invalid fx data: %s\n", wsResponse.Data)
+			log.Printf("invalid fx price data: %s\n", wsResponse.Data)
 			continue
 		}
 
 		t, ok := data[2].(string)
 		if !ok || t == "" {
-			log.Printf("invalid timestamp: %s\n", t)
+			log.Printf("invalid timestamp update: %s\n", t)
 			continue
 		}
 
 		timestamp, err := time.Parse(timestampLayout, t)
-		if timestamp.Before(latestUpdate.Timestamp) || err != nil {
-			log.Printf("invalid timestamp: %s\n", timestamp)
+		if timestamp.Before(latestUpdate.Timestamp) || timestamp.Equal(latestUpdate.Timestamp) || err != nil {
+			log.Printf("invalid timestamp update: %s\n", timestamp)
 			continue
 		}
 
 		priceFloat, ok := data[5].(float64)
 		if !ok || priceFloat == 0 {
-			log.Printf("invalid price: %f\n", priceFloat)
+			log.Printf("invalid price update: %f\n", priceFloat)
 			continue
 		}
+
 		price := fmt.Sprintf("%f", priceFloat)
+		if price == latestUpdate.Value {
+			continue
+		}
 
 		simplifiedData := Data{
 			Timestamp: timestamp,
