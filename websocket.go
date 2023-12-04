@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 
 const PriceFeedAPIToken = "15fdaffbca93fb6c1084fb284f974be97ef23dcf"
 
-// connectWebSocket connects to a WebSocket and handles incoming messages.
 func connectWebSocket(url string) {
 	c, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
@@ -44,13 +44,48 @@ func connectWebSocket(url string) {
 			break
 		}
 
-		var data Data
-		if err := json.Unmarshal(message, &data); err != nil {
+		var wsResponse WebSocketResponse
+		if err := json.Unmarshal(message, &wsResponse); err != nil {
 			log.Printf("json unmarshal error: %v\n", err)
 			continue
 		}
-		storeDataRedis(data)
 
-		time.Sleep(100 * time.Millisecond)
+		if wsResponse.MessageType == "A" && wsResponse.Service == "fx" {
+			var data []any
+			if err := json.Unmarshal(wsResponse.Data, &data); err != nil {
+				log.Printf("fx data unmarshal error: %v\n", err)
+				continue
+			}
+
+			if len(data) > 5 {
+				timeStamp, ok := data[2].(string)
+				if !ok {
+					log.Printf("unexpected data type for timestamp\n")
+					continue
+				}
+				log.Printf("Received timestamp: %s\n", timeStamp)
+
+				pricePoint, ok := data[5].(float64)
+				if !ok {
+					log.Printf("unexpected data type for price point\n")
+					continue
+				}
+				log.Printf("Received price point: %f\n", pricePoint)
+
+				simplifiedData := Data{
+					Timestamp: timeStamp,
+					Value:     pricePoint,
+				}
+				storeDataRedis(simplifiedData)
+				fmt.Println(simplifiedData)
+			}
+		}
+		time.Sleep(time.Second)
 	}
+}
+
+type WebSocketResponse struct {
+	MessageType string          `json:"messageType"`
+	Service     string          `json:"service,omitempty"`
+	Data        json.RawMessage `json:"data"`
 }

@@ -4,26 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"time"
 )
 
 // Data structure to store the data.
 type Data struct {
-	Timestamp time.Time `json:"timestamp"`
-	Value     float64   `json:"value"`
+	Timestamp string  `json:"timestamp"`
+	Value     float64 `json:"value"`
 }
 
 // storeDataRedis caches data in Redis.
 func storeDataRedis(data Data) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		log.Printf("json marshal error: %v\n", err)
-		return
+		log.Fatalf("json marshal error: %v\n", err)
 	}
 
 	err = rdb.Set(context.Background(), "fxPriceData", jsonData, 0).Err()
 	if err != nil {
-		log.Printf("redis set error: %v\n", err)
+		log.Fatalf("redis set error: %v\n", err)
 	}
 }
 

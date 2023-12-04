@@ -41,21 +41,19 @@ func keeper() {
 		auth.GasLimit = uint64(3000000) // in units
 		auth.GasPrice = gasPrice
 
-		data, err := retrieveDataRedis()
-		if err != nil {
-			log.Printf("redis get error: %v\n", err)
-			continue
-		}
-		log.Println(data)
+		// data, err := retrieveDataRedis()
+		// if err != nil {
+		// 	log.Fatalf("redis get error: %v\n", err)
+		// }
 
 		//TODO: UPDATE THIS
 		contractAddress := common.HexToAddress("0xMyContractAddress")
 		_, err = NewSepoliaContract(client, contractAddress)
 		if err != nil {
-			log.Printf("contract instantiation error: %v\n", err)
-			continue
+			// log.Printf("contract instantiation error: %v\n", err)
 		}
 
+		// Prevents rate-limiting from the RPC provider
 		time.Sleep(time.Second)
 	}
 }
