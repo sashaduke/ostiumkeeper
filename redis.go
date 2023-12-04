@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"time"
 )
 
 // Data structure to store the data.
 type Data struct {
-	Timestamp string  `json:"timestamp"`
-	Value     float64 `json:"value"`
+	Timestamp time.Time `json:"timestamp"`
+	Value     float64   `json:"value"`
 }
 
 // storeDataRedis caches data in Redis.

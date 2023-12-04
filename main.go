@@ -18,7 +18,7 @@ func init() {
 }
 
 func main() {
-	go connectWebSocket("wss://api.tiingo.com/fx")
+	go pollWebSocket(connectWebSocket("wss://api.tiingo.com/fx"))
 	go keeper()
 
 	http.HandleFunc("/data", handleData)
