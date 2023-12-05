@@ -111,7 +111,7 @@ func pollWebSocket(c *websocket.Conn) {
 		}
 
 		latestUpdate = simplifiedData
-		logger.Printf("\nSuccessfully fetched & cached new price update from feed:\nGBP/USD @ %s\n\n", price)
+		logger.Printf("\nSuccessfully fetched & cached new price update from WebSocket feed:\nGBP/USD @ %s\n\n", price)
 	}
 }
 
