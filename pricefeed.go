@@ -12,6 +12,7 @@ var (
 	websocketURL      = getEnv("WS_URL", "wss://api.tiingo.com/fx")
 	priceFeedAPIToken = getEnv("WS_API_KEY", "15fdaffbca93fb6c1084fb284f974be97ef23dcf")
 	timestampLayout   = getEnv("WS_TIME_LAYOUT", "2006-01-02T15:04:05.000000-07:00")
+	fxPairTicker      = getEnv("FX_PAIR", "gbpusd")
 )
 
 func connectWebSocket() *websocket.Conn {
@@ -25,7 +26,7 @@ func connectWebSocket() *websocket.Conn {
 		"authorization": priceFeedAPIToken,
 		"eventData": map[string]any{
 			"thresholdLevel": 5,
-			"tickers":        []string{"gbpusd"},
+			"tickers":        []string{fxPairTicker},
 		},
 	})
 	if err != nil {
