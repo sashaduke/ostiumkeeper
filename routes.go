@@ -29,7 +29,7 @@ func handleContracts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contractAddress := common.HexToAddress(StorageContractAddress)
+	contractAddress := common.HexToAddress(storageContractAddress)
 	contract, err := instantiateContract(client, contractAddress)
 	if err != nil {
 		respondWithError(w, "failed to instantiate contract")

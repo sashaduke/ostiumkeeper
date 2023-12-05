@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -33,10 +32,4 @@ func TestRedisStoreAndRetrieveData(t *testing.T) {
 			require.Equal(t, tt.data.Value, retrievedData.Value)
 		})
 	}
-}
-
-// Util func for reading the cached redis value
-func TestRedisGetCachedValue(t *testing.T) {
-	data, err := retrieveDataRedis()
-	fmt.Println(data, err)
 }

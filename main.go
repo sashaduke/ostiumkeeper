@@ -17,9 +17,11 @@ func init() { // Executes first, initialises db
 		Addr: "localhost:6379",
 	})
 	if err := rdb.FlushDB(context.Background()).Err(); err != nil {
-		panic(err)
+		logger.Fatalf("init failed - can't flush redis DB: %v\n", err)
 	}
-	storeDataRedis(Data{Timestamp: time.Now().UTC()})
+	if err := storeDataRedis(Data{Timestamp: time.Now().UTC()}); err != nil {
+		logger.Printf("redis write error: %v\n", err)
+	}
 }
 
 func main() {

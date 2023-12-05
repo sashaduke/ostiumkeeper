@@ -8,10 +8,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const (
-	websocketURL      = "wss://api.tiingo.com/fx"
-	priceFeedAPIToken = "15fdaffbca93fb6c1084fb284f974be97ef23dcf"
-	timestampLayout   = "2006-01-02T15:04:05.000000-07:00"
+var (
+	websocketURL      = getEnv("WS_URL", "wss://api.tiingo.com/fx")
+	priceFeedAPIToken = getEnv("WS_API_KEY", "15fdaffbca93fb6c1084fb284f974be97ef23dcf")
+	timestampLayout   = getEnv("TIME_LAYOUT", "2006-01-02T15:04:05.000000-07:00")
 )
 
 func connectWebSocket() *websocket.Conn {
@@ -35,7 +35,6 @@ func connectWebSocket() *websocket.Conn {
 	if err = c.WriteMessage(websocket.TextMessage, subscribeRequest); err != nil {
 		logger.Fatalf("write error: %v\n", err)
 	}
-
 	return c
 }
 
@@ -44,7 +43,8 @@ func pollWebSocket(c *websocket.Conn) {
 
 	latestUpdate, err := retrieveDataRedis()
 	if err != nil {
-		logger.Fatalf("redis db read error: %v\n", err)
+		logger.Printf("redis db read error: %v\n", err)
+		latestUpdate = Data{Timestamp: time.Now().UTC()}
 	}
 
 	for {
@@ -105,7 +105,11 @@ func pollWebSocket(c *websocket.Conn) {
 			Value:     price,
 		}
 
-		storeDataRedis(simplifiedData)
+		if err := storeDataRedis(simplifiedData); err != nil {
+			logger.Printf("redis write error: %v\n", err)
+			continue
+		}
+
 		latestUpdate = simplifiedData
 		logger.Printf("\nSuccessfully fetched & cached new price update from feed:\nGBP/USD @ %s\n\n", price)
 	}

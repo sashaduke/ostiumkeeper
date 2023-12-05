@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"math/big"
+	"os"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -11,11 +12,19 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-const (
-	StorageContractAddress = "48eB2302cfEc7049820b66FC91955C5d250b3fF9"
-	SepoliaRPCEndpoint     = "https://sepolia.infura.io/v3/131bd995e0764b2da6be91ee9058dc91"
-	ECDSAPrivkeyHex        = "fe05041e74295604ff8f76dc24847c06e93c015da608b4281446c7de6f54cc46"
+var (
+	storageContractAddress = getEnv("CONTRACT_ADDRESS", "48eB2302cfEc7049820b66FC91955C5d250b3fF9")
+	blockchainRPCEndpoint  = getEnv("RPC_ENDPOINT", "https://sepolia.infura.io/v3/131bd995e0764b2da6be91ee9058dc91")
+	privkeyHexECDSA        = getEnv("PRIVKEY_HEX", "fe05041e74295604ff8f76dc24847c06e93c015da608b4281446c7de6f54cc46")
 )
+
+// Get environment variables or fallback to above values
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
 
 // Keeper logic to interact with EVM-based blockchain
 func keeper() {
@@ -24,7 +33,7 @@ func keeper() {
 		logger.Fatalf("ethereum connection error: %v\n", err)
 	}
 
-	contractAddress := common.HexToAddress(StorageContractAddress)
+	contractAddress := common.HexToAddress(storageContractAddress)
 	contract, err := instantiateContract(client, contractAddress)
 	if err != nil {
 		logger.Fatalf("contract instantiation error: %v\n", err)
@@ -70,12 +79,12 @@ func writeToContract(client *ethclient.Client, auth *bind.TransactOpts, contract
 
 // connectToEthereum establishes a connection to an Ethereum client
 func connectToEthereum() (*ethclient.Client, *bind.TransactOpts, error) {
-	client, err := ethclient.Dial(SepoliaRPCEndpoint)
+	client, err := ethclient.Dial(blockchainRPCEndpoint)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	privateKey, err := crypto.HexToECDSA(ECDSAPrivkeyHex)
+	privateKey, err := crypto.HexToECDSA(privkeyHexECDSA)
 	if err != nil {
 		return nil, nil, err
 	}

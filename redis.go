@@ -13,15 +13,18 @@ type Data struct {
 }
 
 // storeDataRedis caches data in Redis.
-func storeDataRedis(data Data) {
+func storeDataRedis(data Data) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		logger.Fatalf("json marshal error: %v\n", err)
+		return err
 	}
 
 	if err := rdb.Set(context.Background(), "fxPriceData", jsonData, 0).Err(); err != nil {
 		logger.Fatalf("redis set error: %v\n", err)
+		return err
 	}
+	return nil
 }
 
 // retrieveDataFromRedis fetches data from Redis.

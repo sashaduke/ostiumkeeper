@@ -19,6 +19,15 @@
 - The middle of the three addresses should have a drop down arrow, which will reveal the state change when clicked
 - Change the outputs to text and you will see both the original GBP/USD rate prior to that transaction, as well as the updated price
 
+### Environment Variables
+- There are a few environment variables which you can modify to change certain parameters. These commands for this are as follows:
+- `export CONTRACT_ADDR="yourContractAddress"`
+- `export RPC_ENDPOINT="yourRPCEndpoint"`
+- `export PRIVKEY_HEX="yourPrivateKeyHex"`
+- `export WS_URL="yourWebSocketURL"`
+- `export WS_API_KEY="yourPriceFeedAPIKey"`
+- `export TIME_LAYOUT="yourTimestampLayout"`
+
 ### Other Resources
 - Go installation docs: https://go.dev/doc/install
 - Redis installation docs: https://redis.io/docs/install/install-redis
