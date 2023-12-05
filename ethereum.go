@@ -14,10 +14,11 @@ import (
 )
 
 var (
-	storageContractAddress = getEnv("CONTRACT_ADDRESS", "48eB2302cfEc7049820b66FC91955C5d250b3fF9")
-	blockchainRPCEndpoint  = getEnv("RPC_ENDPOINT", "https://sepolia.infura.io/v3/131bd995e0764b2da6be91ee9058dc91")
 	privkeyHexECDSA        = getEnv("PRIVKEY_HEX", "fe05041e74295604ff8f76dc24847c06e93c015da608b4281446c7de6f54cc46")
+	nodeProviderAPIToken   = getEnv("RPC_API_KEY", "131bd995e0764b2da6be91ee9058dc91")
+	blockchainRPCEndpoint  = getEnv("RPC_ENDPOINT", "https://sepolia.infura.io/v3/")
 	contractWriteFrequency = getEnv("CONTRACT_WRITE_FREQ", "15")
+	storageContractAddress = getEnv("CONTRACT_ADDRESS", "48eB2302cfEc7049820b66FC91955C5d250b3fF9")
 )
 
 // Get environment variables or fallback to above values.
@@ -57,7 +58,7 @@ func keeper() {
 	for {
 		time.Sleep(3 * time.Second)
 		data, err := retrieveDataRedis()
-		// Check that the most recent timestamp is indeed 15s+ later than the last one
+		// Check that the last received timestamp is indeed 15s+ later than the previous one
 		if data.Timestamp.Before(latestUpdate.Timestamp.Add(freq)) ||
 			data.Timestamp.Equal(latestUpdate.Timestamp.Add(freq)) || err != nil {
 			continue
@@ -110,7 +111,7 @@ func connectToEthereumWithRetry(maxRetries int) (*ethclient.Client, *bind.Transa
 
 // connectToEthereum establishes a connection to an Ethereum client.
 func connectToEthereum() (*ethclient.Client, *bind.TransactOpts, error) {
-	client, err := ethclient.Dial(blockchainRPCEndpoint)
+	client, err := ethclient.Dial(blockchainRPCEndpoint + nodeProviderAPIToken)
 	if err != nil {
 		return nil, nil, err
 	}
