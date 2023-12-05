@@ -2,14 +2,10 @@ linters:
   enable:
     - gofmt
     - goimports
-    - golint
     - govet
     - errcheck
     - staticcheck
     - unused
-    - deadcode
-    - structcheck
-    - varcheck
     - ineffassign
     - misspell
     - unconvert
