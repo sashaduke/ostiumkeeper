@@ -12,7 +12,9 @@ import (
 func TestHandleData(t *testing.T) {
 	// Setup Redis client with test data
 	testData := Data{Timestamp: time.Now().UTC(), Value: "0.12618"}
-	storeDataRedis(testData)
+
+	err := storeDataRedis(testData)
+	require.Nil(t, err)
 
 	req, _ := http.NewRequest("GET", "/data", nil)
 	rr := httptest.NewRecorder()

@@ -49,6 +49,8 @@ func handleContracts(w http.ResponseWriter, r *http.Request) {
 
 func respondWithError(w http.ResponseWriter, message string) {
 	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte(message))
+	if _, err := w.Write([]byte(message)); err != nil {
+		logger.Printf("couldn't write error response: %v", err)
+	}
 	logger.Fatalf("handler error: %s", message)
 }

@@ -17,7 +17,7 @@ func TestConnectToEthereum(t *testing.T) {
 
 func TestInstantiateContract(t *testing.T) {
 	client, _, _ := connectToEthereum()
-	contractAddress := common.HexToAddress(StorageContractAddress)
+	contractAddress := common.HexToAddress(storageContractAddress)
 	contract, err := instantiateContract(client, contractAddress)
 	require.Nil(t, err)
 	require.NotNil(t, contract)

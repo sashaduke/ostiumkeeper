@@ -25,7 +25,8 @@ func TestRedisStoreAndRetrieveData(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			storeDataRedis(tt.data)
+			err := storeDataRedis(tt.data)
+			require.Nil(t, err)
 			retrievedData, err := retrieveDataRedis()
 			require.Nil(t, err)
 			require.Equal(t, tt.data.Timestamp, retrievedData.Timestamp)

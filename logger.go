@@ -10,7 +10,7 @@ var logger *log.Logger
 
 func init() {
 	// Open or create the log file
-	logFile, err := os.OpenFile("daemon_log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("daemon_log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
 	}

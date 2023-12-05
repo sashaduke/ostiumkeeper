@@ -18,7 +18,7 @@ var (
 	privkeyHexECDSA        = getEnv("PRIVKEY_HEX", "fe05041e74295604ff8f76dc24847c06e93c015da608b4281446c7de6f54cc46")
 )
 
-// Get environment variables or fallback to above values
+// Get environment variables or fallback to above values.
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
@@ -26,7 +26,7 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-// Keeper logic to interact with EVM-based blockchain
+// Keeper logic to interact with EVM-based blockchain.
 func keeper() {
 	client, auth, err := connectToEthereum()
 	if err != nil {
@@ -48,7 +48,7 @@ func keeper() {
 	}
 }
 
-// Updates the smart contract with the latest timestamped data
+// Updates the smart contract with the latest timestamped data.
 func writeToContract(client *ethclient.Client, auth *bind.TransactOpts, contract *Storage) error {
 	nonce, err := client.PendingNonceAt(context.Background(), auth.From)
 	if err != nil {
@@ -77,7 +77,7 @@ func writeToContract(client *ethclient.Client, auth *bind.TransactOpts, contract
 	return nil
 }
 
-// connectToEthereum establishes a connection to an Ethereum client
+// connectToEthereum establishes a connection to an Ethereum client.
 func connectToEthereum() (*ethclient.Client, *bind.TransactOpts, error) {
 	client, err := ethclient.Dial(blockchainRPCEndpoint)
 	if err != nil {
@@ -102,7 +102,7 @@ func connectToEthereum() (*ethclient.Client, *bind.TransactOpts, error) {
 	return client, auth, nil
 }
 
-// instantiateContract creates an object with contract methods using generated ABI bindings
+// instantiateContract creates an object with contract methods using generated ABI bindings.
 func instantiateContract(client *ethclient.Client, address common.Address) (*Storage, error) {
 	contract, err := NewStorage(address, client)
 	if err != nil {

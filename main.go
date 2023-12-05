@@ -8,9 +8,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var (
-	rdb *redis.Client
-)
+var rdb *redis.Client
 
 func init() { // Executes first, initialises db
 	rdb = redis.NewClient(&redis.Options{
