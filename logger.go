@@ -6,11 +6,14 @@ import (
 	"os"
 )
 
-var logger *log.Logger
+var (
+	logger      *log.Logger
+	logfileName = getEnv("LOG_FILE", "daemon_log.txt")
+)
 
 func init() {
 	// Open or create the log file
-	logFile, err := os.OpenFile("daemon_log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
+	logFile, err := os.OpenFile(logfileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
 	}

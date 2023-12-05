@@ -30,6 +30,7 @@
 - `export FX_PAIR="gbpusd"` - can be changed to another FX pair i.e. eurusd
 - `export WS_TIME_LAYOUT="2006-01-02T15:04:05.000000-07:00"` - timestamp layout for decoding responses
 - `export CONTRACT_WRITE_FREQ="15"` (seconds) - frequency at which updates are written to contract 
+- `export LOG_FILE="daemon_log.txt"` - file name for log output file
 
 ### Other Resources
 - Go installation docs: https://go.dev/doc/install
