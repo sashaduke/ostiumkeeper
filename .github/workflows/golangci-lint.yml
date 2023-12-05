@@ -27,5 +27,5 @@ jobs:
         args: --timeout 5m
 
     - name: Run Tests
-      run: go test ./...
+      run: go test -list 'Test' ./... | grep -v '_NoCI' | xargs -I {} go test -v -run ^{}$
 

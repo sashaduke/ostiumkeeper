@@ -9,13 +9,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestHandleData(t *testing.T) {
+func TestHandleData_NoCI(t *testing.T) {
 	// Setup Redis client with test data
 	testData := Data{Timestamp: time.Now().UTC(), Value: "0.12618"}
 
 	err := storeDataRedis(testData)
 	require.Nil(t, err)
 
+	// Test REST API Endpoint response
 	req, _ := http.NewRequest("GET", "/data", nil)
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(handleData)
