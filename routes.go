@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -13,12 +12,12 @@ import (
 func handleData(w http.ResponseWriter, r *http.Request) {
 	data, err := retrieveDataRedis()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respondWithError(w, "failed to retrieve data from redis")
 		return
 	}
 
-	if err = json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, "Error encoding data", http.StatusInternalServerError)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		respondWithError(w, "failed to encode data")
 	}
 }
 
@@ -26,23 +25,30 @@ func handleData(w http.ResponseWriter, r *http.Request) {
 func handleContracts(w http.ResponseWriter, r *http.Request) {
 	client, _, err := connectToEthereum()
 	if err != nil {
-		http.Error(w, "Failed to connect to Ethereum client", http.StatusInternalServerError)
+		respondWithError(w, "failed to connect to Ethereum client")
 		return
 	}
 
-	contractAddress := common.HexToAddress("48eB2302cfEc7049820b66FC91955C5d250b3fF9")
+	contractAddress := common.HexToAddress(StorageContractAddress)
 	contract, err := instantiateContract(client, contractAddress)
 	if err != nil {
-		http.Error(w, "Failed to instantiate contract", http.StatusInternalServerError)
+		respondWithError(w, "failed to instantiate contract")
 		return
 	}
 
 	data, err := contract.Retrieve(&bind.CallOpts{})
 	if err != nil {
-		log.Fatalf("contract call error: %v\n", err)
+		respondWithError(w, "failed to retrieve contract storage data")
+		return
 	}
 
-	if err = json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, "Error encoding data", http.StatusInternalServerError)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		respondWithError(w, "failed to encode data")
 	}
+}
+
+func respondWithError(w http.ResponseWriter, message string) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(message))
+	logger.Fatalf("handler error: %s", message)
 }

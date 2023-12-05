@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -18,7 +17,7 @@ const (
 func connectWebSocket() *websocket.Conn {
 	c, _, err := websocket.DefaultDialer.Dial(websocketURL, nil)
 	if err != nil {
-		log.Fatalf("websocket dial error: %v\n", err)
+		logger.Fatalf("websocket dial error: %v\n", err)
 	}
 
 	subscribeRequest, err := json.Marshal(map[string]any{
@@ -30,11 +29,11 @@ func connectWebSocket() *websocket.Conn {
 		},
 	})
 	if err != nil {
-		log.Fatalf("json marshal error: %v\n", err)
+		logger.Fatalf("json marshal error: %v\n", err)
 	}
 
 	if err = c.WriteMessage(websocket.TextMessage, subscribeRequest); err != nil {
-		log.Fatalf("write error: %v\n", err)
+		logger.Fatalf("write error: %v\n", err)
 	}
 
 	return c
@@ -45,20 +44,20 @@ func pollWebSocket(c *websocket.Conn) {
 
 	latestUpdate, err := retrieveDataRedis()
 	if err != nil {
-		log.Fatalf("redis db read error: %v\n", err)
+		logger.Fatalf("redis db read error: %v\n", err)
 	}
 
 	for {
 		time.Sleep(time.Second)
 		_, message, err := c.ReadMessage()
 		if err != nil {
-			log.Printf("websocket read error: %v\n", err)
+			logger.Printf("websocket read error: %v\n", err)
 			break
 		}
 
 		var wsResponse WebSocketResponse
 		if err := json.Unmarshal(message, &wsResponse); err != nil {
-			log.Printf("json unmarshal error: %v\n", err)
+			logger.Printf("json unmarshal error: %v\n", err)
 			continue
 		}
 
@@ -68,31 +67,31 @@ func pollWebSocket(c *websocket.Conn) {
 
 		var data []any
 		if err := json.Unmarshal(wsResponse.Data, &data); err != nil || len(data) < 6 {
-			log.Printf("invalid fx price data: %s\n", wsResponse.Data)
+			logger.Printf("invalid fx price data: %s\n", wsResponse.Data)
 			continue
 		}
 
 		t, ok := data[2].(string)
 		if !ok || t == "" {
-			log.Printf("invalid timestamp update: %s\n", t)
+			logger.Printf("invalid timestamp update: %s\n", t)
 			continue
 		}
 
 		timestamp, err := time.Parse(timestampLayout, t)
 		if err != nil {
-			log.Printf("error parsing timestamp: %s\n", timestamp)
+			logger.Printf("error parsing timestamp: %s\n", timestamp)
 			continue
 		}
 
 		timestamp = timestamp.UTC()
 		if timestamp.Before(latestUpdate.Timestamp) || timestamp.Equal(latestUpdate.Timestamp) || err != nil {
-			log.Printf("expired timestamp: received %s, cached is %s\n", timestamp, latestUpdate.Timestamp)
+			logger.Printf("expired timestamp: received %s, cached is %s\n", timestamp, latestUpdate.Timestamp)
 			continue
 		}
 
 		priceFloat, ok := data[5].(float64)
 		if !ok || priceFloat == 0 {
-			log.Printf("invalid price update: %f\n", priceFloat)
+			logger.Printf("invalid price update: %f\n", priceFloat)
 			continue
 		}
 
@@ -108,7 +107,7 @@ func pollWebSocket(c *websocket.Conn) {
 
 		storeDataRedis(simplifiedData)
 		latestUpdate = simplifiedData
-		log.Printf("\nSuccessfully fetched & cached new price update from feed:\nGBP/USD @ %s\n\n", price)
+		logger.Printf("\nSuccessfully fetched & cached new price update from feed:\nGBP/USD @ %s\n\n", price)
 	}
 }
 

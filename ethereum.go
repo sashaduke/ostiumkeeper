@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"math/big"
 	"time"
 
@@ -18,51 +17,58 @@ const (
 	ECDSAPrivkeyHex        = "fe05041e74295604ff8f76dc24847c06e93c015da608b4281446c7de6f54cc46"
 )
 
-// Keeper logic to interact with Ethereum blockchain (Sepolia Testnet)
+// Keeper logic to interact with EVM-based blockchain
 func keeper() {
 	client, auth, err := connectToEthereum()
 	if err != nil {
-		log.Fatalf("ethereum connection error: %v\n", err)
+		logger.Fatalf("ethereum connection error: %v\n", err)
 	}
 
 	contractAddress := common.HexToAddress(StorageContractAddress)
 	contract, err := instantiateContract(client, contractAddress)
 	if err != nil {
-		log.Fatalf("contract instantiation error: %v\n", err)
+		logger.Fatalf("contract instantiation error: %v\n", err)
 	}
 
 	for {
-		// Prevents us spending too much gas or getting rate-limited by RPC provider
-		time.Sleep(20 * time.Second)
-
-		nonce, err := client.PendingNonceAt(context.Background(), auth.From)
-		if err != nil {
-			log.Fatalf("nonce error: %v\n", err)
+		// Write to blockchain every 15s to minimise gas costs and RPC requests
+		time.Sleep(15 * time.Second)
+		if err := writeToContract(client, auth, contract); err != nil {
+			logger.Fatalf("contract interaction error: %v\n", err)
 		}
-		gasPrice, err := client.SuggestGasPrice(context.Background())
-		if err != nil {
-			log.Fatalf("gas price error: %v\n", err)
-		}
-
-		auth.Nonce = big.NewInt(int64(nonce))
-		auth.Value = big.NewInt(0)      // in wei
-		auth.GasLimit = uint64(3000000) // in gas units
-		auth.GasPrice = gasPrice
-
-		data, err := retrieveDataRedis()
-		if err != nil {
-			log.Fatalf("redis get error: %v\n", err)
-		}
-
-		tx, err := contract.Store(auth, data.Value)
-		if err != nil {
-			log.Fatalf("contract call error: %v\n", err)
-		}
-		log.Printf("\nPrice update sent to blockchain! Tx hash:\n%s\n\n", tx.Hash().Hex())
 	}
 }
 
-// connectToEthereum establishes a connection to an Ethereum client and creates an authenticated session
+// Updates the smart contract with the latest timestamped data
+func writeToContract(client *ethclient.Client, auth *bind.TransactOpts, contract *Storage) error {
+	nonce, err := client.PendingNonceAt(context.Background(), auth.From)
+	if err != nil {
+		return err
+	}
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return err
+	}
+
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0)      // eth sent in wei
+	auth.GasLimit = uint64(3000000) // in gas units
+	auth.GasPrice = gasPrice
+
+	data, err := retrieveDataRedis()
+	if err != nil {
+		return err
+	}
+
+	tx, err := contract.Store(auth, data.Value)
+	if err != nil {
+		return err
+	}
+	logger.Printf("\nPrice update sent to blockchain! Tx hash:\n%s\n\n", tx.Hash().Hex())
+	return nil
+}
+
+// connectToEthereum establishes a connection to an Ethereum client
 func connectToEthereum() (*ethclient.Client, *bind.TransactOpts, error) {
 	client, err := ethclient.Dial(SepoliaRPCEndpoint)
 	if err != nil {

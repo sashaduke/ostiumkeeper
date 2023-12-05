@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
@@ -13,7 +12,7 @@ var (
 	rdb *redis.Client
 )
 
-func init() {
+func init() { // Executes first, initialises db
 	rdb = redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
@@ -24,11 +23,14 @@ func init() {
 }
 
 func main() {
+	// Start daemons
 	go pollWebSocket(connectWebSocket())
 	go keeper()
 
+	// Setup routes
 	http.HandleFunc("/data", handleData)
 	http.HandleFunc("/contracts", handleContracts)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// Run server and log if error returned
+	logger.Fatal(http.ListenAndServe(":8080", nil))
 }
