@@ -4,8 +4,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/stretchr/testify/require"
 )
+
+func init() {
+	rdb = redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+}
 
 func TestRedisStoreAndRetrieveData_NoCI(t *testing.T) {
 	tests := []struct {
