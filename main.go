@@ -10,19 +10,10 @@ import (
 
 var rdb *redis.Client
 
-func init() { // Executes first, initialises db
-	rdb = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
-	if err := rdb.FlushDB(context.Background()).Err(); err != nil {
-		logger.Fatalf("init failed - can't flush redis DB: %v\n", err)
-	}
-	if err := storeDataRedis(Data{Timestamp: time.Now().UTC()}); err != nil {
-		logger.Printf("redis write error: %v\n", err)
-	}
-}
-
 func main() {
+	// Flush & init DB
+	initRedis()
+
 	// Start daemons
 	go pollWebSocket(connectWebSocket())
 	go keeper()
@@ -33,4 +24,16 @@ func main() {
 
 	// Run server and log if error returned
 	logger.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func initRedis() {
+	rdb = redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+	if err := rdb.FlushDB(context.Background()).Err(); err != nil {
+		logger.Printf("couldn't flush redis DB: %v\n", err)
+	}
+	if err := storeDataRedis(Data{Timestamp: time.Now().UTC()}); err != nil {
+		logger.Printf("redis write error: %v\n", err)
+	}
 }

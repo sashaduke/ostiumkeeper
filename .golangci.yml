@@ -1,10 +1,22 @@
 linters:
-  enable-all: true
-  disable:  # List any linters here that you explicitly want to disable
+  enable:
+    - gofmt
+    - goimports
+    - golint
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - deadcode
+    - structcheck
+    - varcheck
+    - ineffassign
+    - misspell
+    - unconvert
 
 issues:
-  max-issues-per-linter: 0  # 0 means unlimited
-  max-same-issues: 0        
-
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  
 run:
   deadline: 5m
