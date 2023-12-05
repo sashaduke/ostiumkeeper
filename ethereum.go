@@ -77,6 +77,21 @@ func writeToContract(client *ethclient.Client, auth *bind.TransactOpts, contract
 	return nil
 }
 
+func connectToEthereumWithRetry(maxRetries int) (*ethclient.Client, *bind.TransactOpts, error) {
+	var client *ethclient.Client
+	var auth *bind.TransactOpts
+	var err error
+
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		client, auth, err = connectToEthereum()
+		if err == nil {
+			return client, auth, nil
+		}
+		time.Sleep(3 * time.Second) // Wait for 3 seconds before retrying
+	}
+	return nil, nil, err
+}
+
 // connectToEthereum establishes a connection to an Ethereum client.
 func connectToEthereum() (*ethclient.Client, *bind.TransactOpts, error) {
 	client, err := ethclient.Dial(blockchainRPCEndpoint)
