@@ -4,7 +4,7 @@
 - First make sure you have the latest versions of Go and Redis installed on your system (links below)
 - Next run `redis-server` and check it is running on port `6379` (this is the default port)
 - Finally, `cd` to the directory containing this repository and execute `go run .`
-- Once running, the system should start pulling GBP/USD prices from the WebSocket feed and broadcasting them to the blockchain automatically
+- Once running, the system should start pulling GBP/USD prices from the WebSocket feed and periodically broadcasting them to the blockchain automatically
 - The contract state and transactions can be viewed on blockchain explorers - a link and explanation has been provided below
 
 ### Endpoints
@@ -15,18 +15,19 @@
 
 ### Viewing the Result on the Blockchain
 - Etherscan link to storage contract https://sepolia.etherscan.io/address/0x48eb2302cfec7049820b66fc91955c5d250b3ff9
-- To view the contract state change, click on a recent 'Store' transaction, then switch to the 'State' tab at the top
-- The middle of the three addresses should have a drop down arrow, which will reveal the state change when clicked
-- Change the outputs to text and you will see both the original GBP/USD rate prior to that transaction, as well as the updated price
+- To view the contract state change, click on a recent 'Store' transaction to the contract, then switch to the 'State' tab at the top next to 'Overview'
+- The middle of the three addresses should have a drop down arrow on the left, which will reveal the state change when clicked
+- Change the outputs from hex to text and you will see both the original GBP/USD rate prior to that transaction, as well as the new price it was updated to
 
 ### Environment Variables
-- There are a few environment variables which you can modify to change certain parameters. These commands for this are as follows:
-- `export CONTRACT_ADDR="yourContractAddress"`
-- `export RPC_ENDPOINT="yourRPCEndpoint"`
-- `export PRIVKEY_HEX="yourPrivateKeyHex"`
-- `export WS_URL="yourWebSocketURL"`
-- `export WS_API_KEY="yourPriceFeedAPIKey"`
-- `export TIME_LAYOUT="yourTimestampLayout"`
+- The system will work out of the box using its default configuration settings, but there are environment variables that can be modified to change various parameters. The commands to update these are as follows:
+- `export CONTRACT_ADDR="48eB2302cfEc7049820b66FC91955C5d250b3fF9"` - storage smart contract address
+- `export RPC_ENDPOINT="https://sepolia.infura.io/v3/yourAPIToken"` - blockchain node RPC endpoint
+- `export PRIVKEY_HEX="yourPrivateKeyHex"` - replace with your hex-encoded ECDSA private key
+- `export WS_URL="wss://api.tiingo.com/fx"` - price feed WebSocket URL
+- `export WS_API_KEY="yourPriceFeedAPIKey"` - replace with your API token for price feed
+- `export WS_TIME_LAYOUT="2006-01-02T15:04:05.000000-07:00"` - timestamp layout for decoding responses
+- `export CONTRACT_WRITE_FREQ="15"` (seconds) - frequency at which updates are written to contract 
 
 ### Other Resources
 - Go installation docs: https://go.dev/doc/install

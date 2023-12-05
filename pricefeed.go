@@ -11,7 +11,7 @@ import (
 var (
 	websocketURL      = getEnv("WS_URL", "wss://api.tiingo.com/fx")
 	priceFeedAPIToken = getEnv("WS_API_KEY", "15fdaffbca93fb6c1084fb284f974be97ef23dcf")
-	timestampLayout   = getEnv("TIME_LAYOUT", "2006-01-02T15:04:05.000000-07:00")
+	timestampLayout   = getEnv("WS_TIME_LAYOUT", "2006-01-02T15:04:05.000000-07:00")
 )
 
 func connectWebSocket() *websocket.Conn {
