@@ -4,8 +4,14 @@
 - First make sure you have the latest versions of Go and Redis installed on your system (links below)
 - Next run `redis-server` and check it is running on port `6379` (this is the default port)
 - Finally, `cd` to the directory containing this repository and execute `go run .`
-- The system should start pulling GBP/USD prices from the WebSocket feed and broadcasting them to the blockchain
-- The contract state and transactions can be viewed on blockchain explorers - a link has been provided below
+- Once running, the system should start pulling GBP/USD prices from the WebSocket feed and broadcasting them to the blockchain automatically
+- The contract state and transactions can be viewed on blockchain explorers - a link and explanation has been provided below
+
+### Endpoints
+- There are two REST API endpoints which will return the latest data cached in the database (/data) and the smart contract (/contracts)
+- Once you have followed the above setup instructions and the daemon is running, you will be able to visit these URLs in your browser to query the endpoints:
+- http://localhost:8080/data
+- http://localhost:8080/contracts
 
 ### Viewing the Result on the Blockchain
 - Etherscan link to storage contract https://sepolia.etherscan.io/address/0x48eb2302cfec7049820b66fc91955c5d250b3ff9
