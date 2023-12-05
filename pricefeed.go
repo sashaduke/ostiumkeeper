@@ -18,7 +18,7 @@ const (
 func connectWebSocket() *websocket.Conn {
 	c, _, err := websocket.DefaultDialer.Dial(websocketURL, nil)
 	if err != nil {
-		log.Fatalf("dial error: %v\n", err)
+		log.Fatalf("websocket dial error: %v\n", err)
 	}
 
 	subscribeRequest, err := json.Marshal(map[string]any{
@@ -52,7 +52,7 @@ func pollWebSocket(c *websocket.Conn) {
 		time.Sleep(time.Second)
 		_, message, err := c.ReadMessage()
 		if err != nil {
-			log.Printf("read error: %v\n", err)
+			log.Printf("websocket read error: %v\n", err)
 			break
 		}
 
@@ -79,8 +79,14 @@ func pollWebSocket(c *websocket.Conn) {
 		}
 
 		timestamp, err := time.Parse(timestampLayout, t)
+		if err != nil {
+			log.Printf("error parsing timestamp: %s\n", timestamp)
+			continue
+		}
+
+		timestamp = timestamp.UTC()
 		if timestamp.Before(latestUpdate.Timestamp) || timestamp.Equal(latestUpdate.Timestamp) || err != nil {
-			log.Printf("invalid timestamp update: %s\n", timestamp)
+			log.Printf("expired timestamp: received %s, cached is %s\n", timestamp, latestUpdate.Timestamp)
 			continue
 		}
 
@@ -102,7 +108,7 @@ func pollWebSocket(c *websocket.Conn) {
 
 		storeDataRedis(simplifiedData)
 		latestUpdate = simplifiedData
-		log.Printf("\nSuccessfully fetched & cached new update from feed:\nGBP/USD @ %s\n\n", price)
+		log.Printf("\nSuccessfully fetched & cached new price update from feed:\nGBP/USD @ %s\n\n", price)
 	}
 }
 

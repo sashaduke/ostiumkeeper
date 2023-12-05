@@ -20,7 +20,7 @@ func init() {
 	if err := rdb.FlushDB(context.Background()).Err(); err != nil {
 		panic(err)
 	}
-	storeDataRedis(Data{Timestamp: time.Now()})
+	storeDataRedis(Data{Timestamp: time.Now().UTC()})
 }
 
 func main() {
